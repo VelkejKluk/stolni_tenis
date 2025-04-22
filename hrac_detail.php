@@ -78,30 +78,30 @@ $hrac = $_GET['hrac'];
         exit();
     }
     $hrac_sql = mysqli_real_escape_string($konektor, $hrac);
-    $sql = "SELECT * FROM `zapasy` WHERE `player_win`= '$hrac_sql'";
+    //$sql = "SELECT * FROM `zapasy` WHERE `player_win`= '$hrac_sql'";
 
     //prohry
-    $hrac_prohry = "SELECT COUNT(`set_lose`) AS `zapasy`, SUM(`set_lose`) AS `sety`
+    $hrac_prohry = "SELECT COUNT(`player_lose`) AS `zapasy`, SUM(`set_win`) AS `prohra_sety`, SUM(`set_lose`) AS `vyhra_sety`
     FROM `zapasy` 
     WHERE `player_lose`='$hrac_sql'";
+
+    //výhry
+    $hrac_vyhry = "SELECT COUNT(`player_win`) AS `zapasy`, SUM(`set_win`) AS `vyhra_sety`, SUM(`set_lose`) AS `prohra_sety`
+        FROM `zapasy` 
+        WHERE `player_win`='$hrac_sql'";
 
     $hrac_prohry = mysqli_query($konektor, $hrac_prohry);
 
     $lose = mysqli_fetch_assoc($hrac_prohry);
 
-    $lose_set = $lose['sety'] ?? 0;
-    $lose_zapasy = $lose['zapasy'];
-
-    //výhry
-    $hrac_vyhry = "SELECT COUNT(`set_win`) AS `zapasy`, SUM(`set_win`) AS `sety`
-    FROM `zapasy` 
-    WHERE `player_win`='$hrac_sql'";
-
     $hrac_vyhry = mysqli_query($konektor, $hrac_vyhry);
 
     $win = mysqli_fetch_assoc($hrac_vyhry);
 
-    $win_set = $win['sety'] ?? 0;
+    $lose_set = $lose['prohra_sety'] + $win['prohra_sety'] ?? 0;
+    $lose_zapasy = $lose['zapasy'];
+
+    $win_set = $win['vyhra_sety'] + $lose['vyhra_sety'] ?? 0;
     $win_zapasy = $win['zapasy'];
 
     //tabulka zápasů
